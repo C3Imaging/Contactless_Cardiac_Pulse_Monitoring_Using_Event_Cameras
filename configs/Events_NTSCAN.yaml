@@ -1,0 +1,96 @@
+BASE: ['']
+TOOLBOX_MODE: "only_test"      # "train_and_test"  or "only_test"
+TRAIN:
+  BATCH_SIZE: 8
+  EPOCHS: 30
+  LR: 18e-5 #0.00018
+  MODEL_FILE_NAME: EVENT_HR_NTSCAN
+  DATA:
+    FS: 30 #rate used for calculating heart rate post-training
+    DATASET: EVENT_HR_TRAIN #name of training dataset used
+    DO_PREPROCESS: False # if first time, should be true
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "../FotoNation_Events_Unbinned/train" #location of dir with train subset
+    CACHED_PATH: "./dataset/rppg_toolbox"
+    EXP_DATA_NAME: "EV_30fps"
+    BEGIN: 0.0  #BEGIN and END are used to define percentage of subset to use
+    END: 1.0
+    PREPROCESS :
+      FS: 30 #rate used for binning events; use 30, 60, or 120; make sure DATA.FS has the same value
+      DATA_TYPE: ['Raw']
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.5
+      H: 144
+      W: 144
+VALID:
+  DATA:
+    FS: 30
+    DATASET: EVENT_HR_VALID
+    DO_PREPROCESS: False
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "../FotoNation_Events_Unbinned/valid"
+    CACHED_PATH: "./dataset/rppg_toolbox"
+    EXP_DATA_NAME: "EV_30fps"
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS:
+      FS: 30
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.5
+      H: 144
+      W: 144
+TEST:
+  METRICS: ['MAE','RMSE','MAPE','Pearson']
+  USE_LAST_EPOCH: False                      # to use provided validation dataset to find the best epoch, should be false
+  DATA:
+    FS: 30
+    DATASET: EVENT_HR_TEST
+    DO_PREPROCESS: False
+    DATA_FORMAT: NDCHW
+    DATA_PATH: "../FotoNation_Events_Unbinned/test"
+    CACHED_PATH: "./dataset/rppg_toolbox"
+    EXP_DATA_NAME: "EV_30fps"
+    BEGIN: 0.0
+    END: 1.0
+    PREPROCESS:
+      FS: 30
+      DATA_TYPE: [ 'Raw' ]
+      LABEL_TYPE: DiffNormalized
+      DO_CHUNK: True
+      CHUNK_LENGTH: 180
+      DYNAMIC_DETECTION: False
+      DYNAMIC_DETECTION_FREQUENCY : 180
+      CROP_FACE: True
+      LARGE_FACE_BOX: True
+      LARGE_BOX_COEF: 1.5
+      H: 144
+      W: 144
+DEVICE: cuda:0
+NUM_OF_GPU_TRAIN: 1
+DEVICE_IDS: [0] #GPU IDs for the GPU to use for training
+LOG:
+  PATH: runs/exp
+MODEL:
+  DROP_RATE: 0.5
+  NAME: Ntscan
+  TSCAN:
+    FRAME_DEPTH: 10 #10, 20, or 40
+INFERENCE:
+  BATCH_SIZE: 8
+  EVALUATION_METHOD: "FFT"        # "FFT" or "peak detection"
+  MODEL_PATH:   "./PreTrainedModels/EV_30fps/EVENT_HR_NTSCAN_Epoch8.pth" #used for only_test
+  #MODEL_PATH:   "./PreTrainedModels/EV_60fps/EVENT_HR_NTSCAN_Epoch19.pth" #used for only_test
+  #MODEL_PATH:   "./PreTrainedModels/EV_120fps/EVENT_HR_NTSCAN_Epoch7.pth" #used for only_test
