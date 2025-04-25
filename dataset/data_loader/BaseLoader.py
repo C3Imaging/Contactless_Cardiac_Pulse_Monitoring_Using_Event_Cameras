@@ -524,26 +524,9 @@ class BaseLoader(Dataset):
         #filtering
         [b,a] = scipy.signal.butter(1,[0.75/1000*2, 2.5/1000*2],analog=False,btype='bandpass')
         filtered=scipy.signal.filtfilt(b,a,flipped_ecg)
-        #custom clipping
-        perc = 0.99
-        start = np.mean(filtered)
-        stride = (np.max(filtered) - np.mean(filtered))/100
-        nums = len(filtered) * perc
-        
-        for i in range(100):
-            if (filtered < start+(i*stride)).sum() >= nums:
-                upper = start+(i*stride)
-                break
-                
-        start = np.mean(filtered)
-        stride = (np.mean(filtered) - np.min(filtered))/100
-        nums = len(filtered) * perc
-        
-        for i in range(100):
-            if (filtered > start-(i*stride)).sum() >= nums:
-                lower = start-(i*stride)
-                break
-
+        #clipping
+        upper = np.percentile(filtered, 99)
+        lower = np.percentile(filtered, 1)
         clipped= np.clip(filtered, lower, upper)
         
         #Downsample signal
