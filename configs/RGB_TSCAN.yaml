@@ -11,7 +11,7 @@ TRAIN:
     DATASET: RGB_HR_TRAIN #name of dataset used
     DO_PREPROCESS: False # if first time, should be true
     DATA_FORMAT: NDCHW
-    DATA_PATH: "../FotoNation_Events_Unbinned/train" #location of dir with train subset
+    DATA_PATH: "../.../train" #location of dir with train subset
     CACHED_PATH: "./dataset/rppg_toolbox"
     EXP_DATA_NAME: "RGB_30fps"
     BEGIN: 0.0  #BEGIN and END are used to define percentage of subset to use
@@ -34,7 +34,7 @@ VALID:
     DATASET: RGB_HR_VALID
     DO_PREPROCESS: False
     DATA_FORMAT: NDCHW
-    DATA_PATH: "../FotoNation_Events_Unbinned/valid"
+    DATA_PATH: "../.../valid"
     CACHED_PATH: "./dataset/rppg_toolbox"
     EXP_DATA_NAME: "RGB_30fps"
     BEGIN: 0.0
@@ -59,7 +59,7 @@ TEST:
     DATASET: RGB_HR_TEST
     DO_PREPROCESS: False
     DATA_FORMAT: NDCHW
-    DATA_PATH: "../FotoNation_Events_Unbinned/test"
+    DATA_PATH: "../.../test"
     CACHED_PATH: "./dataset/rppg_toolbox"
     EXP_DATA_NAME: "RGB_30fps"
     BEGIN: 0.0
