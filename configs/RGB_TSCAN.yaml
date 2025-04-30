@@ -4,7 +4,6 @@ TRAIN:
   BATCH_SIZE: 8
   EPOCHS: 30
   LR: 18e-5 #0.00018
-  #MODEL_FILE_NAME: XPERI_DROWSINESS_EVENT_HR_TIME_TSCAN
   MODEL_FILE_NAME: RGB_HR_TSCAN
   DATA:
     FS: 30 #rate used for calculating heart rate post-training
