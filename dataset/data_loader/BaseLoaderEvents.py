@@ -135,48 +135,44 @@ class BaseLoaderEvents(Dataset):
         print("Total Number of raw files preprocessed:", len(data_dirs_split), end='\n\n')
 
     def gen_voxel_rep(events, H, W):
-        voxel_grid = np.zeros((H, W), dtype=np.float32).flatten()
-        if(len(events)>0):
-            cropped_bin = []
-            for i in range(len(events)):
-                if events[i][1] < 280 or events[i][1] >= 1000:
-                    continue
-                else:
-                    new_ev = events[i]
-                    new_ev[1]-=280
-                    cropped_bin.append(new_ev)
-            cropped_bin = np.array(cropped_bin)
+        voxel_grid = np.zeros((H * W,), dtype=np.float32)
 
-            df_x = int(720/W)
-            df_y = int(720/H)
-
-            if len(cropped_bin) > 0:
-                xs = (cropped_bin[:, 1]/df_x).astype(np.uint32)
-                ys = (cropped_bin[:, 2]/df_y).astype(np.uint32)
-                pols = cropped_bin[:, 3].astype(np.float32)
-                pols[pols == 0] = -1        
-                index1 = (xs + ys*W).astype(np.uint32)
-                np.add.at(voxel_grid,index1,pols)
-
-            voxel_grid = np.reshape(voxel_grid,(H, W))
-
-            m, M = -8.0, 8.0
-            voxel_grid = (255.0 * (voxel_grid - m) / (M - m)).astype(np.uint8)
-
-            return voxel_grid
-        else:
+        if events.shape[0] == 0:
             print("No events available")
-            voxel_grid = np.reshape(voxel_grid,(H, W))
-            return voxel_grid
+            return voxel_grid.reshape(H, W)
+        
+        # Boolean mask to filter x-coordinates between 280 and 999
+        mask = (events[:, 1] >= 280) & (events[:, 1] < 1000)
+        cropped_bin = events[mask].copy()
+        
+        # Adjust x-coordinates
+        cropped_bin[:, 1] -= 280
+
+        # Downsample factors
+        df_x = 720 // W
+        df_y = 720 // H
+            
+        # Convert coordinates to voxel indices
+        xs = (cropped_bin[:, 1] / df_x).astype(np.uint32)
+        ys = (cropped_bin[:, 2] / df_y).astype(np.uint32)
+        pols = cropped_bin[:, 3].astype(np.float32)
+        pols[pols == 0] = -1  # Convert 0 to -1
+
+        index = xs + ys * W
+        np.add.at(voxel_grid, index, pols)
+
+        voxel_grid = voxel_grid.reshape(H, W)
+
+        # Normalize and convert to uint8
+        m, M = -8.0, 8.0
+        voxel_grid = (M-m) * (voxel_grid - voxel_grid.min()) / (voxel_grid.max() - voxel_grid.min()) + m
+        voxel_grid = (255.0 * voxel_grid).astype(np.uint8)
+
+        return voxel_grid
         
     def gen_voxel_stream(event_stream, H, W):
-        voxel_stream = np.zeros(
-            (len(event_stream),1,H,W), 
-            dtype=np.float32
-        )
-
-        for i in range(len(event_stream)):
-            voxel_stream[i] = np.array(BaseLoaderEvents.gen_voxel_rep(event_stream[i], H, W))
+        voxel_list = [gen_voxel_rep(events, H, W) for events in event_stream]
+        voxel_stream = np.stack(voxel_list)[:, None, :, :].astype(np.float32)
         return voxel_stream
     
     def preprocess(self, events, labels, config_preprocess):
