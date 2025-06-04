@@ -171,7 +171,7 @@ class BaseLoaderEvents(Dataset):
         return voxel_grid
         
     def gen_voxel_stream(event_stream, H, W):
-        voxel_list = [gen_voxel_rep(events, H, W) for events in event_stream]
+        voxel_list = [BaseLoaderEvents.gen_voxel_rep(events, H, W) for events in event_stream]
         voxel_stream = np.stack(voxel_list)[:, None, :, :].astype(np.float32)
         return voxel_stream
     
