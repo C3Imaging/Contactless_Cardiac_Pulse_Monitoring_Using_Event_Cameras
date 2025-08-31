@@ -165,8 +165,7 @@ class BaseLoaderEvents(Dataset):
 
         # Normalize and convert to uint8
         m, M = -8.0, 8.0
-        voxel_grid = (M-m) * (voxel_grid - voxel_grid.min()) / (voxel_grid.max() - voxel_grid.min()) + m
-        voxel_grid = (255.0 * voxel_grid).astype(np.uint8)
+        voxel_grid = (255.0 * (voxel_grid - m) / (M - m)).astype(np.uint8)
 
         return voxel_grid
         
